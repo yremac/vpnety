@@ -2,8 +2,6 @@
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-REM серкрк привет
-
 REM Код обновления
 set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat" 
 set "scriptName=fw.bat"
