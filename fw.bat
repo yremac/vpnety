@@ -1,37 +1,36 @@
-Вот полный код скрипта с реализацией всех команд:
-
 @echo off
 setlocal enabledelayedexpansion
 
-REM Update Code
-set "repoURL=https://github.com/yremac/vpnety"
+REM Код обновления
+set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat" 
 set "scriptName=fw.bat"
 set "tempFile=%temp%\updateScript.bat"
 
-echo Checking for updates...
+echo obnova...
 
-certutil -urlcache -split -f %repoURL%/raw/main/%scriptName% %tempFile%
+curl -s -o %tempFile% %repoURL%
 
-REM Use FC command to compare the files
 fc /b %0 %tempFile% > nul
 
 if errorlevel 1 (
-    echo New version of the script found. Updating...
-    move /y %tempFile% %0
-    echo Update completed.
+  echo Новая версия скрипта найдена. Обновление...
+  move /y %tempFile% %0
+  echo Обновление завершено.
 ) else (
-    echo Script is up to date.
+  echo Скрипт обновлен до последней версии.
 )
+
+REM Остальной код скрипта...
 
 REM Создание папки для установки во временной директории пользователя
 set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
 mkdir "%tempDir%"
 
-REM Проверка на успешное создание папки 
+REM Проверка на успешное создание папки
 if not exist "%tempDir%" (
-  echo Error: Unable to create installation directory.
-  pause
-  goto mainMenu
+    echo Error: Unable to create installation directory.
+    pause
+    goto mainMenu
 )
 
 :mainMenu
@@ -42,80 +41,67 @@ echo VPNety Setup KillSwitch Firewall
 echo ===============================
 echo.
 echo Choose a command:
-echo 1. Reset KillSwitch (reset firewall settings)  
+echo 1. Reset KillSwitch (reset firewall settings)
 echo 2. Enable KillSwitch (reset firewall and block inbound and outbound connections)
 echo 3. Add a program for inbound and outbound connections
-echo 4. Hiddify Commands
-echo 5. Exit the script
-echo.  
+echo 4. Install Hiddify from GitHub
+echo 5. Settins for Hiddify
+echo 6. Exit the script
+echo 7. UNInstall Hiddify from GitHub
+echo.
 
 set /p "choice=Enter the command number: "
 
 if "%choice%"=="1" (
-  cls
-  echo Resetting KillSwitch...
-  echo Executing command: netsh advfirewall reset
-  netsh advfirewall reset
-  echo All OK
-  pause
-  goto mainMenu  
+    cls
+    echo Resetting KillSwitch...
+    echo Executing command: netsh advfirewall reset
+    netsh advfirewall reset
+    echo All OK
+    pause
+    goto mainMenu
 )
 
 if "%choice%"=="2" (
-  cls
-  echo Enabling KillSwitch...
-  echo Executing command: netsh advfirewall reset
-  netsh advfirewall reset
-  echo All OK
-  echo.
-  echo Executing command: netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
-  netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
-  echo All OK
-  echo.
-  echo Executing command: netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
-  netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
-  echo All OK
-  pause
-  goto mainMenu
+    cls
+    echo Enabling KillSwitch...
+    echo Executing command: netsh advfirewall reset
+    netsh advfirewall reset
+    echo All OK
+    echo.
+    echo Executing command: netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
+    netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
+    echo All OK
+    echo.
+    echo Executing command: netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
+    netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
+    echo All OK
+    pause
+    goto mainMenu
 )
 
 if "%choice%"=="3" (
-  cls
-  set "counter=1"
-  :addProgramLoop
-  echo.
-  set /p "programPath=Enter the path for program %counter% for inbound and outbound connections: "
-  rem Удаление возможных кавычек в начале и конце строки
-  set "programPath=!programPath:"=!"
-  echo Adding rule for inbound and outbound program: "!programPath!" 
-  netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=in program="!programPath!" action=allow enable=yes profile=domain,private,public
-  netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=out program="!programPath!" action=allow enable=yes profile=domain,private,public
-  echo All OK
-  set /p "addMore=Add another program? (y/n): "
-  if /i "!addMore!"=="y" (
-      set /a "counter+=1"
-      goto addProgramLoop
-  )
-  pause
-  goto mainMenu  
+    cls
+    set "counter=1"
+    :addProgramLoop
+    echo.
+    set /p "programPath=Enter the path for program %counter% for inbound and outbound connections: "
+    rem Удаление возможных кавычек в начале и конце строки
+    set "programPath=!programPath:"=!"
+    echo Adding rule for inbound and outbound program: "!programPath!"
+    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=in program="!programPath!" action=allow enable=yes profile=domain,private,public
+    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=out program="!programPath!" action=allow enable=yes profile=domain,private,public
+    echo All OK
+    set /p "addMore=Add another program? (y/n): "
+    if /i "!addMore!"=="y" (
+        set /a "counter+=1"
+        goto addProgramLoop
+    )
+    pause
+    goto mainMenu
 )
 
 if "%choice%"=="4" (
-  :hiddifyMenu
-  cls
-  echo =================
-  echo Hiddify Commands
-  echo =================
-  echo.
-  echo 1. Install Hiddify
-  echo 2. Set Preferences
-  echo 3. Uninstall Hiddify
-  echo 4. Clear Hiddify Data
-  echo 5. Back to Main Menu
-  
-  set /p "hiddifyChoice=Enter a command number: "
-
-  if "%hiddifyChoice%"=="1" (
     cls
     echo Installing Hiddify from GitHub...
     set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
@@ -125,7 +111,7 @@ if "%choice%"=="4" (
     if not exist "%tempDir%" (
         echo Error: Unable to create installation directory.
         pause
-        goto hiddifyMenu
+        goto mainMenu
     )
 
     REM Скачивание Hiddify
@@ -136,7 +122,7 @@ if "%choice%"=="4" (
     if not exist "!tempDir!\hiddify-windows-x64-setup.zip" (
         echo Error: Hiddify installation file not found.
         pause
-        goto hiddifyMenu
+        goto cleanup
     )
 
     REM Расспаковка Hiddify
@@ -146,43 +132,44 @@ if "%choice%"=="4" (
     REM Установка Hiddify
     echo Installing Hiddify silently...
     pushd "!tempDir!"
-    start /wait setup.exe /S   
+    start /wait setup.exe /S   REM Попробуйте также /VERYSILENT или другие флаги, зависящие от установщика
     popd
 
     REM Очистка временных файлов
+    :cleanup
     echo Cleaning up...
-    del "!tempDir!\hiddify-windows-x64-setup.zip" 
+    del "!tempDir!\hiddify-windows-x64-setup.zip"
     rmdir /s /q "!tempDir!"
 
     echo Hiddify installation complete.
     pause
-    goto hiddifyMenu
-  )
+    goto mainMenu
+)
 
-  if "%hiddifyChoice%"=="2" (
+if "%choice%"=="5" (
     cls
     set "prefsFile=%APPDATA%\Hiddify\hiddify\shared_preferences.json"
 
     REM Создание директории, если её нет
     if not exist "%APPDATA%\Hiddify\hiddify" mkdir "%APPDATA%\Hiddify\hiddify"
 
-    REM Создание файла shared_preferences.json
-    ( 
-      echo {"flutter.preferences_version":1
-      echo ,"flutter.enable_analytics":false
-      echo ,"flutter.intro_completed":true
-      echo ,"flutter.profiles_update_check":"2023-12-24T19:07:35.963261"  
-      echo ,"flutter.service-mode":"vpn"
-      echo ,"flutter.started_by_user":false
-      echo ,"flutter.locale":"ru"}
-    ) > "!prefsFile!"
+    REM Создание файла shared_preferences.json в нужной директории
+    echo {"flutter.preferences_version":1,"flutter.enable_analytics":false,"flutter.intro_completed":true,"flutter.profiles_update_check":"2023-12-24T19:07:35.963261","flutter.service-mode":"vpn","flutter.started_by_user":false,"flutter.locale":"ru"} > "!prefsFile!"
 
     echo Preferences file created successfully.
     pause
-    goto hiddifyMenu
-  )
+    goto mainMenu
+)
 
-  if "%hiddifyChoice%"=="3" (
+
+
+
+if "%choice%"=="6" (
+    echo Exiting the script.
+    exit /b
+)
+
+if "%choice%"=="7" (
     cls
     set "installDir="
     set "appDataDir=%APPDATA%\Hiddify"
@@ -199,7 +186,7 @@ if "%choice%"=="4" (
     if not defined installDir (
         echo Error: Hiddify is not installed.
         pause
-        goto hiddifyMenu
+        goto mainMenu
     )
 
     echo Hiddify is installed in: %installDir%
@@ -211,6 +198,20 @@ if "%choice%"=="4" (
         REM Удаление основной программы
         if exist "%installDir%\unins000.exe" (
             "%installDir%\unins000.exe" && (
+                REM Проверка существования рабочей папки текущего пользователя
+                if exist "%appDataDir%" (
+                    echo Hiddify configuration folder is located in: %appDataDir%
+                    set /p "deleteAppData=Do you want to delete the configuration folder as well? (y/n): "
+                    if /i "%deleteAppData%"=="y" (
+                        rmdir /s /q "%appDataDir%"
+                        echo Configuration folder deleted.
+                    ) else (
+                        echo Configuration folder preserved.
+                    )
+                ) else (
+                    echo Hiddify configuration folder not found.
+                )
+
                 echo Hiddify successfully uninstalled.
             ) || (
                 echo Error: Uninstallation process cancelled.
@@ -223,46 +224,12 @@ if "%choice%"=="4" (
     )
 
     pause
-    goto hiddifyMenu
-  )
-
-  if "%hiddifyChoice%"=="4" (
-       cls
-    set "appDataDir=%APPDATA%\Hiddify"
-
-    REM Проверка существования рабочей папки текущего пользователя
-    if exist "%appDataDir%" (
-        echo Hiddify configuration folder is located in: %appDataDir%
-        set /p "deleteAppData=Do you want to delete the configuration folder as well? (y/n): "
-        set "deleteAppData=%deleteAppData:~0,1%"  REM Extract the first character (user input)
-
-        if /i "%deleteAppData%"=="y" (
-            rmdir /s /q "%appDataDir%"
-            echo Configuration folder deleted.
-        ) else (
-            echo Configuration folder preserved.
-        )
-    ) else (
-        echo Hiddify configuration folder not found.
-    )
-
-    pause
-    goto hiddifyMenu
-  )
-
-  if "%hiddifyChoice%"=="5" (
     goto mainMenu
-  )
-
-  echo Invalid choice. Please try again.
-  pause
-  goto hiddifyMenu
 )
 
-if "%choice%"=="5" (
-  echo Exiting the script.
-  exit /b
-)  
+
+
+
 
 echo Invalid input. Please try again.
 pause
