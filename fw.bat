@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM серкрк
+REM серкрк привет
 
 REM Код обновления
 set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat" 
