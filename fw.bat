@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 > nul
 setlocal enabledelayedexpansion
 
 REM серкрк привет
@@ -41,15 +42,15 @@ echo ===============================
 echo VPNety Setup KillSwitch Firewall
 echo ===============================
 echo.
-echo Choose a command:
-echo 1. Reset KillSwitch (reset firewall settings)
-echo 2. Enable KillSwitch (reset firewall and block inbound and outbound connections)
-echo 3. Add a program for inbound and outbound connections
-echo 4. Install Hiddify from GitHub
-echo 5. Settins for Hiddify
-echo 6. Exit the script
-echo 7. UNInstall Hiddify from GitHub
-echo 8. clear Hiddify from GitHub
+echo Выберите команду:
+echo 1. Сбросить KillSwitch (сбросить настройки брандмауэра)
+echo 2. Включить KillSwitch (сбросить настройки брандмауэра и блокировать входящие и исходящие соединения)
+echo 3. Добавить программу для входящих и исходящих соединений
+echo 4. Установить Hiddify из GitHub
+echo 5. Настройки для Hiddify
+echo 6. Выйти из скрипта
+echo 7. Деинсталлировать Hiddify из GitHub
+echo 8. Удалить Hiddify из GitHub
 echo.
 
 set /p "choice=Enter the command number: "
