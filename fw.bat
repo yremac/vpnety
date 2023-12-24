@@ -1,12 +1,14 @@
 @echo off
 setlocal enabledelayedexpansion
 
+REM серкрк
+
 REM Код обновления
 set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat" 
 set "scriptName=fw.bat"
 set "tempFile=%temp%\updateScript.bat"
 
-echo obnova...
+echo Проверка обновлений...
 
 curl -s -o %tempFile% %repoURL%
 
@@ -16,11 +18,10 @@ if errorlevel 1 (
   echo Новая версия скрипта найдена. Обновление...
   move /y %tempFile% %0
   echo Обновление завершено.
+  goto :mainMenu
 ) else (
   echo Скрипт обновлен до последней версии.
 )
-
-REM Остальной код скрипта...
 
 REM Создание папки для установки во временной директории пользователя
 set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
@@ -48,6 +49,7 @@ echo 4. Install Hiddify from GitHub
 echo 5. Settins for Hiddify
 echo 6. Exit the script
 echo 7. UNInstall Hiddify from GitHub
+echo 8. clear Hiddify from GitHub
 echo.
 
 set /p "choice=Enter the command number: "
@@ -198,20 +200,6 @@ if "%choice%"=="7" (
         REM Удаление основной программы
         if exist "%installDir%\unins000.exe" (
             "%installDir%\unins000.exe" && (
-                REM Проверка существования рабочей папки текущего пользователя
-                if exist "%appDataDir%" (
-                    echo Hiddify configuration folder is located in: %appDataDir%
-                    set /p "deleteAppData=Do you want to delete the configuration folder as well? (y/n): "
-                    if /i "%deleteAppData%"=="y" (
-                        rmdir /s /q "%appDataDir%"
-                        echo Configuration folder deleted.
-                    ) else (
-                        echo Configuration folder preserved.
-                    )
-                ) else (
-                    echo Hiddify configuration folder not found.
-                )
-
                 echo Hiddify successfully uninstalled.
             ) || (
                 echo Error: Uninstallation process cancelled.
@@ -221,6 +209,30 @@ if "%choice%"=="7" (
         )
     ) else (
         echo Uninstall cancelled.
+    )
+
+    pause
+    goto mainMenu
+)
+
+if "%choice%"=="8" (
+    cls
+    set "appDataDir=%APPDATA%\Hiddify"
+
+    REM Проверка существования рабочей папки текущего пользователя
+    if exist "%appDataDir%" (
+        echo Hiddify configuration folder is located in: %appDataDir%
+        set /p "deleteAppData=Do you want to delete the configuration folder as well? (y/n): "
+        set "deleteAppData=%deleteAppData:~0,1%"  REM Extract the first character (user input)
+
+        if /i "%deleteAppData%"=="y" (
+            rmdir /s /q "%appDataDir%"
+            echo Configuration folder deleted.
+        ) else (
+            echo Configuration folder preserved.
+        )
+    ) else (
+        echo Hiddify configuration folder not found.
     )
 
     pause
