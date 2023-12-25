@@ -2,18 +2,18 @@
 @chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-REM Код обновления
-set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat" 
+REM Код обновления v2
+set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat"
 set "scriptName=fw.bat"
 set "tempFile=%temp%\updateScript.bat"
 
 echo Проверка обновлений...
 
-curl -s -o %tempFile% %repoURL%
+powershell -command "& { Invoke-WebRequest -Uri '%repoURL%' -OutFile '%tempFile%' }"
 
 fc /b %0 %tempFile% > nul
 
-if errorlevel 1 (
+if %errorlevel% neq 0 (
   echo Новая версия скрипта найдена. Обновление...
   move /y %tempFile% %0
   echo Обновление завершено.
@@ -141,7 +141,7 @@ echo 4. Очистить рабочую папку Hiddify на ПК
 echo 5. Вернуться в главное меню
 echo.
 
-set /p "hiddifyChoice=Введите номер команды для Hiddify: "
+set /p "hiddifyChoice=Введите номер команды для Hiddify:"
 
 if "%hiddifyChoice%"=="1" (
     cls
