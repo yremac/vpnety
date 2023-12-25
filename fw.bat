@@ -1,34 +1,33 @@
 @echo off
-@chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-REM Код обновления v2
+REM Update Code
 set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat"
 set "scriptName=fw.bat"
 set "tempFile=%temp%\updateScript.bat"
 
-echo Проверка обновлений...
+echo Checking for updates...
 
 powershell -command "& { Invoke-WebRequest -Uri '%repoURL%' -OutFile '%tempFile%' }"
 
 fc /b %0 %tempFile% > nul
 
 if %errorlevel% neq 0 (
-  echo Новая версия скрипта найдена. Обновление...
+  echo New version of the script found. Updating...
   move /y %tempFile% %0
-  echo Обновление завершено.
+  echo Update completed.
   goto :mainMenu
 ) else (
-  echo Скрипт обновлен до последней версии.
+  echo Script is up to date.
 )
 
-REM Создание папки для установки во временной директории пользователя
+REM Creating a folder for installation in the user's temporary directory
 set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
 mkdir "%tempDir%"
 
-REM Проверка на успешное создание папки
+REM Checking for successful creation of the folder
 if not exist "%tempDir%" (
-    echo Ошибка: Невозможно создать каталог для установки.
+    echo Error: Unable to create the installation directory.
     pause
     goto mainMenu
 )
@@ -37,74 +36,72 @@ if not exist "%tempDir%" (
 cls
 echo.
 echo ===============================
-echo VPNety Настройка KillSwitch Firewall
+echo VPNety KillSwitch Firewall Setup
 echo ===============================
 echo.
-echo Выберите команду:
-echo 1. Сбросить KillSwitch (сбросить настройки брандмауэра)
-echo 2. Включить KillSwitch (сбросить настройки брандмауэра и блокировать входящие и исходящие соединения)
-echo 3. Добавить программу для входящих и исходящих соединений
-echo 4. Установить и настроить Hiddify из GitHub
-echo 5. Выйти из скрипта
+echo Choose a command:
+echo 1. Reset KillSwitch (reset firewall settings)
+echo 2. Enable KillSwitch (reset firewall settings and block incoming and outgoing connections)
+echo 3. Add a program for incoming and outgoing connections
+echo 4. Install and configure Hiddify from GitHub
+echo 5. Exit the script
 echo.
 
-set /p "choice=Введите номер команды: "
+set /p "choice=Enter the command number: "
 
 if "%choice%"=="1" (
     cls
-    echo Сброс KillSwitch...
-    echo Выполнение команды: netsh advfirewall reset
+    echo Resetting KillSwitch...
+    echo Executing command: netsh advfirewall reset
     netsh advfirewall reset
-    echo Все ОК
+    echo All OK
     pause
     goto mainMenu
 )
 
 if "%choice%"=="2" (
-    REM Получаем индекс активного сетевого подключения
+    REM Get the index of the active network connection
     for /f "tokens=*" %%a in ('powershell -Command "Get-NetConnectionProfile ^| Where-Object { $_.OperationalStatus -eq 'Up' } ^| Select-Object -First 1 ^| Select-Object -ExpandProperty InterfaceIndex"') do set "interfaceIndex=%%a"
 
-    REM Если найден индекс, меняем тип сети на частный
+    REM If the index is found, change the network type to private
     if defined interfaceIndex (
         powershell -Command "Get-NetConnectionProfile -InterfaceIndex !interfaceIndex! | Set-NetConnectionProfile -NetworkCategory Private"
-        echo Тип сети изменен на Частный (Private) для интерфейса с индексом !interfaceIndex!.
+        echo Network type changed to Private for interface with index !interfaceIndex!.
     ) else (
-        echo Не удалось определить активное сетевое подключение.
+        echo Failed to determine the active network connection.
         goto :mainMenu
     )
 
     cls
-    echo Включение KillSwitch...
-    echo Выполнение команды: netsh advfirewall reset
+    echo Enabling KillSwitch...
+    echo Executing command: netsh advfirewall reset
     netsh advfirewall reset
-    echo Все ОК
+    echo All OK
     echo.
-    echo Выполнение команды: netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
+    echo Executing command: netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
     netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
-    echo Все ОК
+    echo All OK
     echo.
-    echo Выполнение команды: netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
+    echo Executing command: netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
     netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
-    echo Все ОК
+    echo All OK
     pause
     goto mainMenu
 )
-
-
 
 if "%choice%"=="3" (
     cls
     set "counter=1"
     :addProgramLoop
     echo.
-    set /p "programPath=Введите путь для программы %counter% для входящих и исходящих соединений: "
-    rem Удаление возможных кавычек в начале и конце строки
+    set /p "programPath=Enter the path for program %counter% for incoming and outgoing connections: "
+    rem Remove any quotes at the beginning and end of the string
     set "programPath=!programPath:"=!"
-    echo Добавление правила для входящих и исходящих программы: "!programPath!"
-    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Программа %counter%" dir=in program="!programPath!" action=allow enable=yes profile=domain,private,public
-    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Программа %counter%" dir=out program="!programPath!" action=allow enable=yes profile=domain,private,public
-    echo Все ОК
-    set /p "addMore=Добавить еще программу? (y/n): "
+    echo Adding rule for incoming and outgoing connections for program: "!programPath!"
+    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=in program="!programPath!" action=allow enable=yes profile=domain,private,public
+    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=out program="!programPath!" action=allow enable=yes profile=domain,private,public
+    echo All OK
+    set /p "addMore=Add another program? (y/n): "
     if /i "!addMore!"=="y" (
         set /a "counter+=1"
         goto addProgramLoop
@@ -118,11 +115,11 @@ if "%choice%"=="4" (
 )
 
 if "%choice%"=="5" (
-    echo Выход из скрипта.
+    echo Exiting the script.
     exit /b
 )
 
-echo Неверный ввод. Пожалуйста, повторите попытку.
+echo Invalid input. Please try again.
 pause
 goto mainMenu
 
@@ -130,60 +127,60 @@ goto mainMenu
 cls
 echo.
 echo =====================
-echo Установка и настройка Hiddify
+echo Install and Configure Hiddify
 echo =====================
 echo.
-echo Выберите команду:
-echo 1. Установить Hiddify из GitHub
-echo 2. Настроить Hiddify (Выполнить после установки!)
-echo 3. Удалить Hiddify с ПК
-echo 4. Очистить рабочую папку Hiddify на ПК
-echo 5. Вернуться в главное меню
+echo Choose a command:
+echo 1. Install Hiddify from GitHub
+echo 2. Configure Hiddify (Run after installation!)
+echo 3. Uninstall Hiddify from the PC
+echo 4. Clear the Hiddify working folder on the PC
+echo 5. Return to the main menu
 echo.
 
-set /p "hiddifyChoice=Введите номер команды для Hiddify:"
+set /p "hiddifyChoice=Enter the command number for Hiddify:"
 
 if "%hiddifyChoice%"=="1" (
     cls
-    echo Установка Hiddify из GitHub...
+    echo Installing Hiddify from GitHub...
     set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
     mkdir "%tempDir%"
 
-    REM Проверка на успешное создание папки
+    REM Check for successful creation of the installation folder
     if not exist "%tempDir%" (
-        echo Ошибка: Невозможно создать каталог для установки.
+        echo Error: Unable to create the installation directory.
         pause
         goto hiddifyMenu
     )
 
-    REM Скачивание Hiddify
-    echo Загрузка Hiddify...
+    REM Download Hiddify
+    echo Downloading Hiddify...
     powershell -command "& { Invoke-WebRequest -Uri 'https://github.com/hiddify/hiddify-next/releases/latest/download/hiddify-windows-x64-setup.zip' -OutFile '!tempDir!\hiddify-windows-x64-setup.zip' }"
 
-    REM Проверка наличия файла перед расспаковкой
+    REM Check for the file before extraction
     if not exist "!tempDir!\hiddify-windows-x64-setup.zip" (
-        echo Ошибка: Файл установки Hiddify не найден.
+        echo Error: Hiddify installation file not found.
         pause
         goto cleanup
     )
 
-    REM Расспаковка Hiddify
-    echo Распаковка Hiddify...
+    REM Extract Hiddify
+    echo Extracting Hiddify...
     powershell -command "& {Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('!tempDir!\hiddify-windows-x64-setup.zip', '!tempDir!');}"
 
-    REM Установка Hiddify
-    echo Установка Hiddify молча...
+    REM Install Hiddify
+    echo Installing Hiddify silently...
     pushd "!tempDir!"
-    start /wait setup.exe /S   REM Попробуйте также /VERYSILENT или другие флаги, зависящие от установщика
+    start /wait setup.exe /S   REM You may also try /VERYSILENT or other flags depending on the installer
     popd
 
-    REM Очистка временных файлов
+    REM Clean up temporary files
     :cleanup
-    echo Очистка...
+    echo Cleaning up...
     del "!tempDir!\hiddify-windows-x64-setup.zip"
     rmdir /s /q "!tempDir!"
 
-    echo Установка Hiddify завершена.
+    echo Hiddify installation completed.
     pause
     goto hiddifyMenu
 )
@@ -192,13 +189,13 @@ if "%hiddifyChoice%"=="2" (
     cls
     set "prefsFile=%APPDATA%\Hiddify\hiddify\shared_preferences.json"
 
-    REM Создание директории, если её нет
+    REM Create the directory if it doesn't exist
     if not exist "%APPDATA%\Hiddify\hiddify" mkdir "%APPDATA%\Hiddify\hiddify"
 
-    REM Создание файла shared_preferences.json в нужной директории
+    REM Create the shared_preferences.json file in the required directory
     echo {"flutter.preferences_version":1,"flutter.enable_analytics":false,"flutter.intro_completed":true,"flutter.profiles_update_check":"2023-12-24T19:07:35.963261","flutter.service-mode":"vpn","flutter.started_by_user":false,"flutter.locale":"ru"} > "!prefsFile!"
 
-    echo Файл настроек создан успешно.
+    echo Settings file created successfully.
     pause
     goto hiddifyMenu
 )
@@ -208,7 +205,7 @@ if "%hiddifyChoice%"=="3" (
     set "installDir="
     set "appDataDir=%APPDATA%\Hiddify"
 
-    REM Поиск расположения Program Files
+    REM Search for the location of Program Files
     for /d %%D in ("%ProgramFiles%\Hiddify" "%ProgramFiles(x86)%\Hiddify") do (
         if exist "%%~D\unins000.exe" (
             set "installDir=%%~D"
@@ -218,73 +215,71 @@ if "%hiddifyChoice%"=="3" (
 
     :FoundInstallDir
     if not defined installDir (
-        echo Ошибка: Hiddify не установлен.
+        echo Error: Hiddify is not installed.
         pause
         goto hiddifyMenu
     )
 
-    echo Hiddify установлен в: %installDir%
+    echo Hiddify is installed in: %installDir%
 
-    set /p "confirm=Вы уверены, что хотите деинсталлировать Hiddify? (y/n): "
+    set /p "confirm=Are you sure you want to uninstall Hiddify? (y/n): "
     if /i "%confirm%"=="y" (
-        echo Деинсталляция Hiddify...
+        echo Uninstalling Hiddify...
 
-        REM Удаление основной программы
+        REM Remove the main program
         if exist "%installDir%\unins000.exe" (
             "%installDir%\unins000.exe" && (
-                echo Hiddify успешно удален.
+                echo Hiddify successfully removed.
             ) || (
-                echo Ошибка: Процесс деинсталляции отменен.
+                echo Error: Uninstallation process canceled.
             )
         ) else (
-            echo Деинсталлятор не найден. Убедитесь, что Hiddify установлен.
+            echo Uninstaller not found. Make sure Hiddify is installed.
         )
     ) else (
-        echo Деинсталляция отменена.
+        echo Uninstallation canceled.
     )
 
     pause
     goto hiddifyMenu
 )
 
-REM Вставляем блок PowerShell-кода для удаления Hiddify
+REM Insert PowerShell code block to remove Hiddify
 if "%hiddifyChoice%"=="4" (
     cls
     set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
     set "deleteConfig="
 
-    REM Проверка наличия папки конфигурации Hiddify
+    REM Check for the presence of the Hiddify configuration folder
     if exist "%tempDir%" (
-        echo Папка конфигурации Hiddify находится в: %tempDir%
-        set /p "deleteConfig=Хотите удалить также папку с настройками? (y/n): "
+        echo Hiddify configuration folder is located at: %tempDir%
+        set /p "deleteConfig=Do you want to also delete the folder with settings? (y/n): "
 
         if /i "%deleteConfig%"=="y" (
-            echo Папка конфигурации удалена.
+            echo Deleting the configuration folder...
             rmdir /s /q "%tempDir%"
             
-            REM Проверка наличия папки после удаления
+            REM Check for the folder after deletion
             if exist "%tempDir%" (
-                echo Ошибка: Папка конфигурации Hiddify не удалена.
+                echo Error: Hiddify configuration folder not deleted.
             ) else (
-                echo Папка конфигурации Hiddify успешно удалена.
+                echo Hiddify configuration folder successfully deleted.
             )
         ) else (
-            echo Папка конфигурации сохранена. Повторно выполните данную команду!
+            echo Configuration folder saved. Run this command again if needed!
         )
     ) else (
-        echo Папка конфигурации Hiddify не найдена.
+        echo Hiddify configuration folder not found.
     )
 
     pause
     goto hiddifyMenu
 )
 
-
-
 if "%hiddifyChoice%"=="5" (
     goto mainMenu
 )
 
-echo Неверный ввод. Пожалуйста, повторите попытку.
+echo Invalid input. Please try again.
 pause
 goto hiddifyMenu
