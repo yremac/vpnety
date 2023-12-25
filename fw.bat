@@ -74,29 +74,113 @@ echo 4. Clear the Hiddify working folder on the PC
 echo 5. Return to the main menu
 echo.
 
-set /p "hiddifyChoice=Enter the command number for Hiddify: "
+set /p "hiddifyChoice=Enter the command number for Hiddify:"
 
 if "%hiddifyChoice%"=="1" (
-    REM Your installation code for Hiddify goes here...
-    echo Placeholder: Install Hiddify from GitHub
+    cls
+    echo Installing Hiddify from GitHub...
+    set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
+    mkdir "%tempDir%"
+
+    REM Check for successful creation of the installation folder
+    if not exist "%tempDir%" (
+        echo Error: Unable to create the installation directory.
+        pause
+        goto hiddifyMenu
+    )
+
+    REM Download Hiddify
+    echo Downloading Hiddify...
+    powershell -command "& { Invoke-WebRequest -Uri 'https://github.com/hiddify/hiddify-next/releases/latest/download/hiddify-windows-x64-setup.zip' -OutFile '!tempDir!\hiddify-windows-x64-setup.zip' }"
+
+    REM Check for the file before extraction
+    if not exist "!tempDir!\hiddify-windows-x64-setup.zip" (
+        echo Error: Hiddify installation file not found.
+        pause
+        goto cleanup
+    )
+
+    REM Extract Hiddify
+    echo Extracting Hiddify...
+    powershell -command "& {Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('!tempDir!\hiddify-windows-x64-setup.zip', '!tempDir!');}"
+
+    REM Install Hiddify
+    echo Installing Hiddify silently...
+    pushd "!tempDir!"
+    start /wait setup.exe /S   REM You may also try /VERYSILENT or other flags depending on the installer
+    popd
+
+    REM Clean up temporary files
+    :cleanup
+    echo Cleaning up...
+    del "!tempDir!\hiddify-windows-x64-setup.zip"
+    rmdir /s /q "!tempDir!"
+
+    echo Hiddify installation completed.
     pause
     goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="2" (
-    REM Your configuration code for Hiddify goes here...
-    echo Placeholder: Configure Hiddify
+    cls
+    set "prefsFile=%APPDATA%\Hiddify\hiddify\shared_preferences.json"
+
+    REM Create the directory if it doesn't exist
+    if not exist "%APPDATA%\Hiddify\hiddify" mkdir "%APPDATA%\Hiddify\hiddify"
+
+    REM Create the shared_preferences.json file in the required directory
+    echo {"flutter.preferences_version":1,"flutter.enable_analytics":false,"flutter.intro_completed":true,"flutter.profiles_update_check":"2023-12-24T19:07:35.963261","flutter.service-mode":"vpn","flutter.started_by_user":false,"flutter.locale":"ru"} > "!prefsFile!"
+
+    echo Settings file created successfully.
     pause
     goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="3" (
-    REM Your uninstallation code for Hiddify goes here...
-    echo Placeholder: Uninstall Hiddify
+    cls
+    set "installDir="
+    set "appDataDir=%APPDATA%\Hiddify"
+
+    REM Search for the location of Program Files
+    for /d %%D in ("%ProgramFiles%\Hiddify" "%ProgramFiles(x86)%\Hiddify") do (
+        if exist "%%~D\unins000.exe" (
+            set "installDir=%%~D"
+            goto FoundInstallDir
+        )
+    )
+
+    :FoundInstallDir
+    if not defined installDir (
+        echo Error: Hiddify is not installed.
+        pause
+        goto hiddifyMenu
+    )
+
+    echo Hiddify is installed in: %installDir%
+
+    set /p "confirm=Are you sure you want to uninstall Hiddify? (y/n): "
+    if /i "%confirm%"=="y" (
+        echo Uninstalling Hiddify...
+
+        REM Remove the main program
+        if exist "%installDir%\unins000.exe" (
+            "%installDir%\unins000.exe" && (
+                echo Hiddify successfully removed.
+            ) || (
+                echo Error: Uninstallation process canceled.
+            )
+        ) else (
+            echo Uninstaller not found. Make sure Hiddify is installed.
+        )
+    ) else (
+        echo Uninstallation canceled.
+    )
+
     pause
     goto hiddifyMenu
 )
 
+REM Insert PowerShell code block to remove Hiddify
 if "%hiddifyChoice%"=="4" (
     cls
     set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
