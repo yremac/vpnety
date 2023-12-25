@@ -36,7 +36,7 @@ if not exist "%tempDir%" (
 cls
 echo.
 echo ===============================
-echo VPNety Help Setup
+echo VPNety KillSwitch Firewall Setup
 echo ===============================
 echo.
 echo Choose a command:
@@ -74,26 +74,58 @@ echo 4. Clear the Hiddify working folder on the PC
 echo 5. Return to the main menu
 echo.
 
-set /p "hiddifyChoice=Enter the command number for Hiddify:"
+set /p "hiddifyChoice=Enter the command number for Hiddify: "
 
 if "%hiddifyChoice%"=="1" (
     REM Your installation code for Hiddify goes here...
-
+    echo Placeholder: Install Hiddify from GitHub
+    pause
+    goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="2" (
     REM Your configuration code for Hiddify goes here...
-
+    echo Placeholder: Configure Hiddify
+    pause
+    goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="3" (
     REM Your uninstallation code for Hiddify goes here...
-
+    echo Placeholder: Uninstall Hiddify
+    pause
+    goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="4" (
-    REM Your code to clear the Hiddify working folder goes here...
+    cls
+    set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
+    set "deleteConfig="
 
+    REM Check for the presence of the Hiddify configuration folder
+    if exist "%tempDir%" (
+        echo Hiddify configuration folder is located at: %tempDir%
+        set /p "deleteConfig=Do you want to also delete the folder with settings? (y/n): "
+
+        if /i "%deleteConfig%"=="y" (
+            echo Deleting the configuration folder...
+            rmdir /s /q "%tempDir%"
+            
+            REM Check for the folder after deletion
+            if exist "%tempDir%" (
+                echo Error: Hiddify configuration folder not deleted.
+            ) else (
+                echo Hiddify configuration folder successfully deleted.
+            )
+        ) else (
+            echo Configuration folder saved. Run this command again if needed!
+        )
+    ) else (
+        echo Hiddify configuration folder not found.
+    )
+
+    pause
+    goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="5" (
