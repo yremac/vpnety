@@ -40,81 +40,17 @@ echo VPNety KillSwitch Firewall Setup
 echo ===============================
 echo.
 echo Choose a command:
-echo 1. Reset KillSwitch (reset firewall settings)
-echo 2. Enable KillSwitch (reset firewall settings and block incoming and outgoing connections)
-echo 3. Add a program for incoming and outgoing connections
-echo 4. Install and configure Hiddify from GitHub
-echo 5. Exit the script
+echo 1. Install and configure Hiddify from GitHub
+echo 2. Exit the script
 echo.
 
 set /p "choice=Enter the command number: "
 
 if "%choice%"=="1" (
-    cls
-    echo Resetting KillSwitch...
-    echo Executing command: netsh advfirewall reset
-    netsh advfirewall reset
-    echo All OK
-    pause
-    goto mainMenu
-)
-
-if "%choice%"=="2" (
-    REM Get the index of the active network connection
-    for /f "tokens=*" %%a in ('powershell -Command "Get-NetConnectionProfile ^| Where-Object { $_.OperationalStatus -eq 'Up' } ^| Select-Object -First 1 ^| Select-Object -ExpandProperty InterfaceIndex"') do set "interfaceIndex=%%a"
-
-    REM If the index is found, change the network type to private
-    if defined interfaceIndex (
-        powershell -Command "Get-NetConnectionProfile -InterfaceIndex !interfaceIndex! | Set-NetConnectionProfile -NetworkCategory Private"
-        echo Network type changed to Private for interface with index !interfaceIndex!.
-    ) else (
-        echo Failed to determine the active network connection.
-        goto :mainMenu
-    )
-
-    cls
-    echo Enabling KillSwitch...
-    echo Executing command: netsh advfirewall reset
-    netsh advfirewall reset
-    echo All OK
-    echo.
-    echo Executing command: netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
-    netsh advfirewall set domainprofile firewallpolicy blockinbound,blockoutbound
-    echo All OK
-    echo.
-    echo Executing command: netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
-    netsh advfirewall set privateprofile firewallpolicy blockinbound,blockoutbound
-    echo All OK
-    pause
-    goto mainMenu
-)
-
-if "%choice%"=="3" (
-    cls
-    set "counter=1"
-    :addProgramLoop
-    echo.
-    set /p "programPath=Enter the path for program %counter% for incoming and outgoing connections: "
-    rem Remove any quotes at the beginning and end of the string
-    set "programPath=!programPath:"=!"
-    echo Adding rule for incoming and outgoing connections for program: "!programPath!"
-    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=in program="!programPath!" action=allow enable=yes profile=domain,private,public
-    netsh advfirewall firewall add rule name="VPNety KillSwitch Firewall - Program %counter%" dir=out program="!programPath!" action=allow enable=yes profile=domain,private,public
-    echo All OK
-    set /p "addMore=Add another program? (y/n): "
-    if /i "!addMore!"=="y" (
-        set /a "counter+=1"
-        goto addProgramLoop
-    )
-    pause
-    goto mainMenu
-)
-
-if "%choice%"=="4" (
     goto :hiddifyMenu
 )
 
-if "%choice%"=="5" (
+if "%choice%"=="2" (
     echo Exiting the script.
     exit /b
 )
@@ -141,139 +77,23 @@ echo.
 set /p "hiddifyChoice=Enter the command number for Hiddify:"
 
 if "%hiddifyChoice%"=="1" (
-    cls
-    echo Installing Hiddify from GitHub...
-    set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
-    mkdir "%tempDir%"
+    REM Your installation code for Hiddify goes here...
 
-    REM Check for successful creation of the installation folder
-    if not exist "%tempDir%" (
-        echo Error: Unable to create the installation directory.
-        pause
-        goto hiddifyMenu
-    )
-
-    REM Download Hiddify
-    echo Downloading Hiddify...
-    powershell -command "& { Invoke-WebRequest -Uri 'https://github.com/hiddify/hiddify-next/releases/latest/download/hiddify-windows-x64-setup.zip' -OutFile '!tempDir!\hiddify-windows-x64-setup.zip' }"
-
-    REM Check for the file before extraction
-    if not exist "!tempDir!\hiddify-windows-x64-setup.zip" (
-        echo Error: Hiddify installation file not found.
-        pause
-        goto cleanup
-    )
-
-    REM Extract Hiddify
-    echo Extracting Hiddify...
-    powershell -command "& {Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('!tempDir!\hiddify-windows-x64-setup.zip', '!tempDir!');}"
-
-    REM Install Hiddify
-    echo Installing Hiddify silently...
-    pushd "!tempDir!"
-    start /wait setup.exe /S   REM You may also try /VERYSILENT or other flags depending on the installer
-    popd
-
-    REM Clean up temporary files
-    :cleanup
-    echo Cleaning up...
-    del "!tempDir!\hiddify-windows-x64-setup.zip"
-    rmdir /s /q "!tempDir!"
-
-    echo Hiddify installation completed.
-    pause
-    goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="2" (
-    cls
-    set "prefsFile=%APPDATA%\Hiddify\hiddify\shared_preferences.json"
+    REM Your configuration code for Hiddify goes here...
 
-    REM Create the directory if it doesn't exist
-    if not exist "%APPDATA%\Hiddify\hiddify" mkdir "%APPDATA%\Hiddify\hiddify"
-
-    REM Create the shared_preferences.json file in the required directory
-    echo {"flutter.preferences_version":1,"flutter.enable_analytics":false,"flutter.intro_completed":true,"flutter.profiles_update_check":"2023-12-24T19:07:35.963261","flutter.service-mode":"vpn","flutter.started_by_user":false,"flutter.locale":"ru"} > "!prefsFile!"
-
-    echo Settings file created successfully.
-    pause
-    goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="3" (
-    cls
-    set "installDir="
-    set "appDataDir=%APPDATA%\Hiddify"
+    REM Your uninstallation code for Hiddify goes here...
 
-    REM Search for the location of Program Files
-    for /d %%D in ("%ProgramFiles%\Hiddify" "%ProgramFiles(x86)%\Hiddify") do (
-        if exist "%%~D\unins000.exe" (
-            set "installDir=%%~D"
-            goto FoundInstallDir
-        )
-    )
-
-    :FoundInstallDir
-    if not defined installDir (
-        echo Error: Hiddify is not installed.
-        pause
-        goto hiddifyMenu
-    )
-
-    echo Hiddify is installed in: %installDir%
-
-    set /p "confirm=Are you sure you want to uninstall Hiddify? (y/n): "
-    if /i "%confirm%"=="y" (
-        echo Uninstalling Hiddify...
-
-        REM Remove the main program
-        if exist "%installDir%\unins000.exe" (
-            "%installDir%\unins000.exe" && (
-                echo Hiddify successfully removed.
-            ) || (
-                echo Error: Uninstallation process canceled.
-            )
-        ) else (
-            echo Uninstaller not found. Make sure Hiddify is installed.
-        )
-    ) else (
-        echo Uninstallation canceled.
-    )
-
-    pause
-    goto hiddifyMenu
 )
 
-REM Insert PowerShell code block to remove Hiddify
 if "%hiddifyChoice%"=="4" (
-    cls
-    set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
-    set "deleteConfig="
+    REM Your code to clear the Hiddify working folder goes here...
 
-    REM Check for the presence of the Hiddify configuration folder
-    if exist "%tempDir%" (
-        echo Hiddify configuration folder is located at: %tempDir%
-        set /p "deleteConfig=Do you want to also delete the folder with settings? (y/n): "
-
-        if /i "%deleteConfig%"=="y" (
-            echo Deleting the configuration folder...
-            rmdir /s /q "%tempDir%"
-            
-            REM Check for the folder after deletion
-            if exist "%tempDir%" (
-                echo Error: Hiddify configuration folder not deleted.
-            ) else (
-                echo Hiddify configuration folder successfully deleted.
-            )
-        ) else (
-            echo Configuration folder saved. Run this command again if needed!
-        )
-    ) else (
-        echo Hiddify configuration folder not found.
-    )
-
-    pause
-    goto hiddifyMenu
 )
 
 if "%hiddifyChoice%"=="5" (
