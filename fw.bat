@@ -36,7 +36,7 @@ if not exist "%tempDir%" (
 cls
 echo.
 echo ===============================
-echo VPNety KillSwitch Firewall Setup
+echo VPNety Help Setup
 echo ===============================
 echo.
 echo Choose a command:
