@@ -36,11 +36,11 @@ if not exist "%tempDir%" (
 cls
 echo.
 echo ===============================
-echo VPNety KillSwitch Firewall Setup
+echo VPNety help VPN Setup
 echo ===============================
 echo.
 echo Choose a command:
-echo 1. Install and configure Hiddify from GitHub
+echo 1. Install and configure Hiddify VPN software from GitHub
 echo 2. Exit the script
 echo.
 
@@ -62,13 +62,14 @@ goto mainMenu
 :hiddifyMenu
 cls
 echo.
-echo =====================
-echo Install and Configure Hiddify
-echo =====================
+echo =============================================
+echo Install and Configure Hiddify VPN software
+echo =============================================
 echo.
 echo Choose a command:
-echo 1. Install Hiddify from GitHub
+echo 1. Install Hiddify VPN software from GitHub
 echo 2. Configure Hiddify (Run after installation!)
+echo =============================================
 echo 3. Uninstall Hiddify from the PC
 echo 4. Clear the Hiddify working folder on the PC
 echo 5. Return to the main menu
