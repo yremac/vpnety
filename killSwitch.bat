@@ -5,7 +5,7 @@
 ) || (
     echo You must run this script as an administrator.
     echo Exiting...
-    timeout /nobreak /t 3 >nul
+    timeout /nobreak /t 6 >nul
     exit /b
 )
 
@@ -28,7 +28,6 @@ if %errorlevel% neq 0 (
   echo New version of the script found. Updating...
   move /y %tempFile% %0
   echo Update completed.
-  goto :mainMenu
 ) else (
   echo Script is up to date.
 )
@@ -103,6 +102,7 @@ if %errorlevel% neq 0 (
   echo New version of the script found. Updating...
   move /y %tempFile% %0
   echo Update completed.
+  goto :mainMenu
 ) else (
   echo Script is up to date.
 )
