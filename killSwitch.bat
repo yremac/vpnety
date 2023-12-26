@@ -3,8 +3,8 @@ chcp 65001 > nul
 setlocal enabledelayedexpansion
 
 REM Update Code
-set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/fw.bat"
-set "scriptName=fw.bat"
+set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/killSwitch.bat"
+set "scriptName=killSwitch.bat"
 set "tempFile=%temp%\updateScript.bat"
 
 echo Checking for updates...
