@@ -50,15 +50,20 @@ echo 4. Exit
 
 set /p choice=Choose an action (1-4): 
 
+)
 if "%choice%"=="1" (
     call :enableFirewallRules
-) else if "%choice%"=="2" (
+)
+if "%choice%"=="2" (
     call :disableFirewallRules
-) else if "%choice%"=="3" (
+)
+if "%choice%"=="3" (
     call :checkForUpdates
-) else if "%choice%"=="4" (
-    exit /b 0
-) else (
+) 
+if "%choice%"=="4" (
+    echo Exiting the script.
+    exit /b
+)	else (
     echo Invalid input. Please choose 1, 2, 3, or 4.
     timeout /nobreak /t 3 >nul
     goto :menu
