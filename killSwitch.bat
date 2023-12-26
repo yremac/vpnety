@@ -29,10 +29,10 @@ set INTERFACE_ALLOWED=tun0
 cls
 echo VPNety killSwitch Firewall Control Menu
 
-echo 1. Включить killSwitch правила
-echo 2. Выключить killSwitch правила
+echo 1. Activate killSwitch rules
+echo 2. Deactivate killSwitch rules
 
-set /p choice=Выберите действие (1-2): 
+set /p choice=Chose action (1-2): 
 
 if "%choice%"=="1" (
     call :enableFirewallRules
@@ -41,33 +41,33 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="3" (
     exit /b
 ) else (
-    echo Некорректный ввод. Пожалуйста, выберите 1 или 2.
+    echo Invalid input.  Please select 1 or 2.
     timeout /nobreak /t 3 >nul
     goto :menu
 )
 
 :enableFirewallRules
-echo Включение правил...
+echo Enabling rules...
 
 :: Получаем список интерфейсов и создаем правила
 for /f "tokens=*" %%I in ('powershell -Command "Get-NetAdapter | Where-Object { $_.InterfaceAlias -ne '!INTERFACE_ALLOWED!' } | ForEach-Object { $_.InterfaceAlias }"') do (
     powershell -Command "New-NetFirewallRule -DisplayName '%RULE_BASE_NAME%_%%I' -Direction Outbound -Action Block -InterfaceAlias '%%I'" >nul 2>&1
-    echo Правило для интерфейса %%I включено.
+    echo The rule for interface %%I is enabled.
 )
 
-echo Все правила включены.
+echo All rules included.
 timeout /nobreak /t 3 >nul
 goto :menu
 
 :disableFirewallRules
-echo Выключение правил...
+echo Disabling rules...
 
 :: Получаем список интерфейсов и удаляем правила
 for /f "tokens=*" %%I in ('powershell -Command "Get-NetAdapter | Where-Object { $_.InterfaceAlias -ne '!INTERFACE_ALLOWED!' } | ForEach-Object { $_.InterfaceAlias }"') do (
     powershell -Command "Remove-NetFirewallRule -DisplayName '%RULE_BASE_NAME%_%%I'" 2>nul
-    echo Правило для интерфейса %%I выключено.
+    echo The rule for interface %%I is disabled.
 )
 
-echo Все правила выключены.
+echo All rules are disabled.
 timeout /nobreak /t 3 >nul
 goto :menu
