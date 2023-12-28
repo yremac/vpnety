@@ -92,10 +92,10 @@ if "%hiddifyChoice%"=="1" (
 
     REM Download Hiddify
     echo Downloading Hiddify...
-    powershell -command "& { Invoke-WebRequest -Uri 'https://github.com/hiddify/hiddify-next/releases/latest/download/hiddify-windows-x64-setup.zip' -OutFile '!tempDir!\hiddify-windows-x64-setup.zip' }"
+    curl -o "%tempDir%\hiddify-windows-x64-setup.zip" -L "https://github.com/hiddify/hiddify-next/releases/latest/download/hiddify-windows-x64-setup.zip"
 
     REM Check for the file before extraction
-    if not exist "!tempDir!\hiddify-windows-x64-setup.zip" (
+    if not exist "%tempDir%\hiddify-windows-x64-setup.zip" (
         echo Error: Hiddify installation file not found.
         pause
         goto cleanup
