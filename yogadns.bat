@@ -2,12 +2,6 @@
 chcp 65001 > nul
 setlocal
 
-:: Temporary folder for downloaded files
-set "tempDownloadFolder=%TEMP%\YogaDNSInstallTemp"
-
-:: Create a temporary folder for downloads if it does not exist
-if not exist "%tempDownloadFolder%" mkdir "%tempDownloadFolder%"
-
 :: Set the path for the configuration file
 set "configPath=%APPDATA%\YogaDNS\Configuration.xml"
 
@@ -21,7 +15,13 @@ set "programPath=C:\Program Files (x86)\YogaDNS"
 set "installerURL=https://yogadns.com/download/YogaDNSSetup.exe"
 
 :: Temporary file name for the installer
-set "tempInstaller=%tempDownloadFolder%\YogaDNSSetup.exe"
+set "tempInstaller=%TEMP%\YogaDNSSetup.exe"
+
+:: Temporary folder for downloaded files
+set "tempDownloadFolder=%TEMP%\YogaDNSInstallTemp"
+
+:: Create a folder for the configuration if it does not exist
+if not exist "%configFolder%" mkdir "%configFolder%"
 
 :: Download the installer
 echo Downloading YogaDNS installer...
@@ -30,7 +30,7 @@ curl -o "%tempInstaller%" "%installerURL%"
 :: Check the success of the installer download
 if %errorlevel% neq 0 (
     echo Error downloading YogaDNS installer.
-    goto :cleanup
+    exit /b 1
 )
 
 :: Install the program silently
@@ -42,7 +42,7 @@ popd
 :: Check if the installation was successful
 if %errorlevel% neq 0 (
     echo Error installing YogaDNS.
-    goto :cleanup
+    exit /b 1
 )
 
 :: Create the configuration file
@@ -65,7 +65,6 @@ echo "YogaDNS has been successfully installed and configured."
 :: Run the program
 start "" "%programPath%\YogaDNS.exe"
 
-:cleanup
 :: Cleanup temporary files and folders
 echo Cleaning up...
 if exist "%tempInstaller%" del "%tempInstaller%"
