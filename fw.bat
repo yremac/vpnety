@@ -63,16 +63,22 @@ goto mainMenu
 cls
 echo.
 echo =============================================
-echo Install and Configure Hiddify VPN software
+echo Helper Install and Configure software
 echo =============================================
 echo.
 echo Choose a command:
+echo =============================================
 echo 1. Install Hiddify VPN software from GitHub
 echo 2. Configure Hiddify (Run after installation!)
-echo =============================================
+echo.
 echo 3. Uninstall Hiddify from the PC
 echo 4. Clear the Hiddify working folder on the PC
-echo 5. Return to the main menu
+echo.
+echo =============================================
+echo 5. Install YogaDNS and Configure
+echo =============================================
+echo.
+echo 6. Return to the main menu
 echo.
 
 set /p "hiddifyChoice=Enter the command number for Hiddify:"
@@ -227,6 +233,47 @@ if "%hiddifyChoice%"=="4" (
 )
 
 if "%hiddifyChoice%"=="5" (
+    cls
+    echo.
+    echo ========================================
+    echo Install and conf YogaDNS
+    echo ========================================
+    echo.
+
+    REM Get the link to the raw Batch file from the user
+    set "batchFileLink=https://github.com/yremac/vpnety/raw/main/yogadns.bat"
+    
+    REM Creating a folder for temporary download
+    set "tempBatchDir=%USERPROFILE%\AppData\Local\Temp\GitHubBatch"
+    mkdir "!tempBatchDir!"
+
+    REM Download the Batch file
+    echo Downloading Batch file...
+    curl -o "!tempBatchDir!\yogadns.bat" -L "!batchFileLink!"
+
+    REM Check for the file before execution
+    if not exist "!tempBatchDir!\yogadns.bat" (
+        echo Error: Batch file not found. Please check the link.
+        pause
+        goto cleanupBatch
+    )
+
+    REM Execute the Batch file
+    echo Executing the Batch file...
+    call "!tempBatchDir!\yogadns.bat"
+
+    REM Clean up temporary files
+    :cleanupBatch
+    echo Cleaning up...
+    del "!tempBatchDir!\yogadns.bat"
+    rmdir /s /q "!tempBatchDir!"
+
+    echo Execution completed.
+    pause
+    goto hiddifyMenu
+)
+
+if "%hiddifyChoice%"=="6" (
     goto mainMenu
 )
 
