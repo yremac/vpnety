@@ -68,8 +68,7 @@ echo =============================================
 echo.
 echo Choose a command:
 echo =============================================
-echo 1. Install Hiddify VPN software from GitHub
-echo 2. Configure Hiddify (Run after installation!)
+echo 1. Install Hiddify VPN and Configure
 echo.
 echo 3. Uninstall Hiddify from the PC
 echo 4. Clear the Hiddify working folder on the PC
@@ -85,23 +84,27 @@ set /p "hiddifyChoice=Enter the command number for Hiddify:"
 
 if "%hiddifyChoice%"=="1" (
     cls
-    echo Installing Hiddify from GitHub...
+    
+    REM Creating a folder for installation in the user's temporary directory
     set "tempDir=%USERPROFILE%\AppData\Local\Temp\HiddifyInstall"
-    mkdir "%tempDir%"
+    mkdir "!tempDir!"
 
-    REM Check for successful creation of the installation folder
-    if not exist "%tempDir%" (
+    REM Checking for successful creation of the folder
+    if not exist "!tempDir!" (
         echo Error: Unable to create the installation directory.
         pause
-        goto hiddifyMenu
+        goto mainMenu
     )
 
+    cls
+    echo Installing Hiddify from GitHub...
+    
     REM Download Hiddify
     echo Downloading Hiddify...
-    curl -o "%tempDir%\hiddify-windows-x64-setup.zip" -L "https://github.com/hiddify/hiddify-next/releases/latest/download/hiddify-windows-x64-setup.zip"
+    curl -o "!tempDir!\hiddify-windows-x64-setup.zip" -L "https://github.com/hiddify/hiddify-next/releases/latest/download/hiddify-windows-x64-setup.zip"
 
     REM Check for the file before extraction
-    if not exist "%tempDir%\hiddify-windows-x64-setup.zip" (
+    if not exist "!tempDir!\hiddify-windows-x64-setup.zip" (
         echo Error: Hiddify installation file not found.
         pause
         goto cleanup
@@ -111,24 +114,27 @@ if "%hiddifyChoice%"=="1" (
     echo Extracting Hiddify...
     powershell -command "& {Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('!tempDir!\hiddify-windows-x64-setup.zip', '!tempDir!');}"
 
-	REM Install Hiddify
-	echo Installing Hiddify silently...
-	pushd "%tempDir%"
+    REM Install Hiddify
+    echo Installing Hiddify silently...
+    pushd "!tempDir!"
 
-	REM Search for any .exe file in the directory
-	for %%I in (*.exe) do (
-		start /wait %%I /S   REM You may also try /VERYSILENT or other flags depending on the installer
-		goto :found
-	)
+    REM Search for any .exe file in the directory
+    set "exeFound="
+    for %%I in (*.exe) do (
+        start /wait %%I /S   REM You may also try /VERYSILENT or other flags depending on the installer
+        set "exeFound=true"
+        goto :found
+    )
 
-	REM If no .exe file is found
-	echo Error: No executable file found for installation.
-	pause
-	goto cleanup
+    REM If no .exe file is found
+    if not defined exeFound (
+        echo Error: No executable file found for installation.
+        pause
+        goto cleanup
+    )
 
-	:found
-	popd
-
+    :found
+    popd
 
     REM Clean up temporary files
     :cleanup
@@ -136,12 +142,22 @@ if "%hiddifyChoice%"=="1" (
     del "!tempDir!\hiddify-windows-x64-setup.zip"
     rmdir /s /q "!tempDir!"
 
-    echo Hiddify installation completed.
+    REM Configuration
+    cls
+    set "prefsFile=%APPDATA%\Hiddify\hiddify\shared_preferences.json"
+
+    REM Create the directory if it doesn't exist
+    if not exist "%APPDATA%\Hiddify\hiddify" mkdir "%APPDATA%\Hiddify\hiddify"
+
+    REM Create the shared_preferences.json file in the required directory
+    echo {"flutter.preferences_version":1,"flutter.enable_analytics":false,"flutter.intro_completed":true,"flutter.profiles_update_check":"2023-12-29T11:02:16.913851","flutter.service-mode":"vpn","flutter.started_by_user":true,"flutter.locale":"ru","flutter.remote-dns-address":"https://base.dns.mullvad.net/dns-query"} > "!prefsFile!"
+
+    echo Hiddify installation and configuration completed.
     pause
     goto hiddifyMenu
 )
 
-if "%hiddifyChoice%"=="2" (
+if "%hiddifyChoice%"=="999" (
     cls
     set "prefsFile=%APPDATA%\Hiddify\hiddify\shared_preferences.json"
 
