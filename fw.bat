@@ -143,7 +143,7 @@ if "%hiddifyChoice%"=="2" (
     if not exist "%APPDATA%\Hiddify\hiddify" mkdir "%APPDATA%\Hiddify\hiddify"
 
     REM Create the shared_preferences.json file in the required directory
-    echo {"flutter.preferences_version":1,"flutter.enable_analytics":false,"flutter.intro_completed":true,"flutter.profiles_update_check":"2023-12-24T19:07:35.963261","flutter.service-mode":"vpn","flutter.started_by_user":false,"flutter.locale":"ru"} > "!prefsFile!"
+    echo {"flutter.preferences_version":1,"flutter.enable_analytics":false,"flutter.intro_completed":true,"flutter.profiles_update_check":"2023-12-29T11:02:16.913851","flutter.service-mode":"vpn","flutter.started_by_user":true,"flutter.locale":"ru","flutter.remote-dns-address":"https://base.dns.mullvad.net/dns-query"} > "!prefsFile!"
 
     echo Settings file created successfully.
     pause
