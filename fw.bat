@@ -216,7 +216,6 @@ if "%hiddifyChoice%"=="3" (
     goto hiddifyMenu
 )
 
-REM Insert PowerShell code block to remove Hiddify
 if "%hiddifyChoice%"=="4" (
     cls
     set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
@@ -230,7 +229,7 @@ if "%hiddifyChoice%"=="4" (
         if /i "%deleteConfig%"=="y" (
             echo Deleting the configuration folder...
             rmdir /s /q "%tempDir%"
-            
+
             REM Check for the folder after deletion
             if exist "%tempDir%" (
                 echo Error: Hiddify configuration folder not deleted.
@@ -243,7 +242,7 @@ if "%hiddifyChoice%"=="4" (
     ) else (
         echo Hiddify configuration folder not found.
     )
-
+)
     pause
     goto hiddifyMenu
 )
