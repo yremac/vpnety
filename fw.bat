@@ -216,7 +216,8 @@ if "%hiddifyChoice%"=="3" (
     goto hiddifyMenu
 )
 
-@echo off
+if "%hiddifyChoice%"=="4" (
+cls
 set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
 
 REM Check for the presence of the Hiddify configuration folder
@@ -226,6 +227,9 @@ if exist "%tempDir%" (
 
     if /i "%deleteConfig%"=="y" (
         echo Deleting the configuration folder...
+        
+        timeout /t 2 /nobreak >nul  -- Add a 2-second delay
+
         rmdir /s /q "%tempDir%"
 
         REM Check for the folder after deletion
@@ -240,6 +244,7 @@ if exist "%tempDir%" (
 ) else (
     echo Hiddify configuration folder not found.
 )
+
 
 )
     pause
