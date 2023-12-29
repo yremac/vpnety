@@ -17,6 +17,9 @@ set "installerURL=https://yogadns.com/download/YogaDNSSetup.exe"
 :: Temporary file name for the installer
 set "tempInstaller=%TEMP%\YogaDNSSetup.exe"
 
+:: Temporary folder for downloaded files
+set "tempDownloadFolder=%TEMP%\YogaDNSInstallTemp"
+
 :: Create a folder for the configuration if it does not exist
 if not exist "%configFolder%" mkdir "%configFolder%"
 
@@ -61,5 +64,10 @@ echo "YogaDNS has been successfully installed and configured."
 
 :: Run the program
 start "" "%programPath%\YogaDNS.exe"
+
+:: Cleanup temporary files and folders
+echo Cleaning up...
+if exist "%tempInstaller%" del "%tempInstaller%"
+if exist "%tempDownloadFolder%" rmdir /s /q "%tempDownloadFolder%"
 
 endlocal
