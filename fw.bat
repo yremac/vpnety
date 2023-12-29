@@ -105,11 +105,24 @@ if "%hiddifyChoice%"=="1" (
     echo Extracting Hiddify...
     powershell -command "& {Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('!tempDir!\hiddify-windows-x64-setup.zip', '!tempDir!');}"
 
-    REM Install Hiddify
-    echo Installing Hiddify silently...
-    pushd "!tempDir!"
-    start /wait setup.exe /S   REM You may also try /VERYSILENT or other flags depending on the installer
-    popd
+	REM Install Hiddify
+	echo Installing Hiddify silently...
+	pushd "%tempDir%"
+
+	REM Search for any .exe file in the directory
+	for %%I in (*.exe) do (
+		start /wait %%I /S   REM You may also try /VERYSILENT or other flags depending on the installer
+		goto :found
+	)
+
+	REM If no .exe file is found
+	echo Error: No executable file found for installation.
+	pause
+	goto cleanup
+
+	:found
+	popd
+
 
     REM Clean up temporary files
     :cleanup
