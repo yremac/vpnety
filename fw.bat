@@ -220,6 +220,7 @@ if "%hiddifyChoice%"=="4" (
 cls
 set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
 
+:DELETE_LOOP
 REM Check for the presence of the Hiddify configuration folder
 if exist "%tempDir%" (
     echo Hiddify configuration folder is located at: %tempDir%
@@ -234,7 +235,8 @@ if exist "%tempDir%" (
 
         REM Check for the folder after deletion
         if exist "%tempDir%" (
-            echo Error: Hiddify configuration folder not deleted.
+            echo Error: Hiddify configuration folder not deleted. Retrying...
+            goto DELETE_LOOP
         ) else (
             echo Hiddify configuration folder successfully deleted.
         )
@@ -244,7 +246,6 @@ if exist "%tempDir%" (
 ) else (
     echo Hiddify configuration folder not found.
 )
-
 
 )
     pause
