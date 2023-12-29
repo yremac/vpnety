@@ -1,47 +1,48 @@
 @echo off
+chcp 65001 > nul
 setlocal
 
-:: Установка пути для конфигурационного файла
+:: Set the path for the configuration file
 set "configPath=%APPDATA%\YogaDNS\Configuration.xml"
 
-:: Путь к папке для конфигурации
+:: Path to the configuration folder
 set "configFolder=%APPDATA%\YogaDNS"
 
-:: Путь к установленной программе
+:: Path to the installed program
 set "programPath=C:\Program Files (x86)\YogaDNS"
 
-:: URL для скачивания установщика
+:: URL for downloading the installer
 set "installerURL=https://yogadns.com/download/YogaDNSSetup.exe"
 
-:: Имя временного файла для установщика
+:: Temporary file name for the installer
 set "tempInstaller=%TEMP%\YogaDNSSetup.exe"
 
-:: Создаем папку для конфигурации, если её нет
+:: Create a folder for the configuration if it does not exist
 if not exist "%configFolder%" mkdir "%configFolder%"
 
-:: Скачиваем установщик
-echo Скачивание установщика YogaDNS...
+:: Download the installer
+echo Downloading YogaDNS installer...
 curl -o "%tempInstaller%" "%installerURL%"
 
-:: Проверяем успешность загрузки установщика
+:: Check the success of the installer download
 if %errorlevel% neq 0 (
-    echo Ошибка при скачивании установщика YogaDNS.
+    echo Error downloading YogaDNS installer.
     exit /b 1
 )
 
-:: Устанавливаем программу в фоновом режиме
-echo Установка YogaDNS...
+:: Install the program silently
+echo Installing YogaDNS...
 pushd "%configFolder%"
 call "%tempInstaller%" /VERYSILENT
 popd
 
-:: Проверяем, была ли установка успешной
+:: Check if the installation was successful
 if %errorlevel% neq 0 (
-    echo Ошибка при установке YogaDNS.
+    echo Error installing YogaDNS.
     exit /b 1
 )
 
-:: Создаем конфигурационный файл
+:: Create the configuration file
 echo ^<?xml version="1.0" encoding="UTF-8" standalone="yes"^?^> > "%configPath%"
 echo ^<YogaDnsProfile file_format="1" product_id="1" product_min_version="127000"^> >> "%configPath%"
 echo    ^<Settings ignore_rule_if_interface_down="1" blockTcpPort53="1" clearDnsCache="1" ttlMin="0" ttlMax="2147483647" captivePortalDetection="0" interceptOthers="0"^> >> "%configPath%"
@@ -55,10 +56,10 @@ echo    ^<DnsServer id="2139" name="mullvad-base-doh" protocol="doh" af="2" ip="
 echo    ^<DnsServer id="1762" name="quad9-doh-ip4-port443-filter-pri" protocol="doh" af="2" ip="9.9.9.9" dnssec_supported="1" doh_host_name="dns9.quad9.net" doh_path="/dns-query" doh_hashes="2A15:F5D6:ACB6:E7C0:901A:DE4E:BBC7:43B2:CCD4:8903:2B46:E164:2F06:9368:3001:258A" /^> >> "%configPath%"
 echo ^</YogaDnsProfile^> >> "%configPath%"
 
-:: Выводим сообщение об успешной установке
-echo "YogaDNS успешно установлен и настроен."
+:: Display a message about successful installation
+echo "YogaDNS has been successfully installed and configured."
 
-:: Запускаем программу
+:: Run the program
 start "" "%programPath%\YogaDNS.exe"
 
 endlocal
