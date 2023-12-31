@@ -71,7 +71,7 @@ echo =============================================
 echo 1. Install Hiddify VPN and Configure
 echo.
 echo 3. Uninstall Hiddify from the PC
-echo 4. Clear the Hiddify working folder on the PC.
+echo 4. Clear the Hiddify working folder on the PC
 echo.
 echo =============================================
 echo 5. Install YogaDNS and Configure
@@ -216,38 +216,34 @@ if "%hiddifyChoice%"=="3" (
     goto hiddifyMenu
 )
 
+REM Insert PowerShell code block to remove Hiddify
 if "%hiddifyChoice%"=="4" (
-cls
-set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
+    cls
+    set "tempDir=%USERPROFILE%\AppData\Roaming\Hiddify"
+    set "deleteConfig="
 
-:DELETE_LOOP
-REM Check for the presence of the Hiddify configuration folder
-if exist "%tempDir%" (
-    echo Hiddify configuration folder is located at: %tempDir%
-    set /p "deleteConfig=Do you want to delete the folder with settings? (y/n): "
+    REM Check for the presence of the Hiddify configuration folder
+    if exist "%tempDir%" (
+        echo Hiddify configuration folder is located at: %tempDir%
+        set /p "deleteConfig=Do you want to also delete the folder with settings? (y/n): "
 
-    if /i "%deleteConfig%"=="y" (
-        echo Deleting the configuration folder...
-        
-        timeout /t 2 /nobreak >nul  -- Add a 2-second delay
-
-        rmdir /s /q "%tempDir%"
-
-        REM Check for the folder after deletion
-        if exist "%tempDir%" (
-            echo Error: Hiddify configuration folder not deleted. Retrying...
-            goto DELETE_LOOP
+        if /i "%deleteConfig%"=="y" (
+            echo Deleting the configuration folder...
+            rmdir /s /q "%tempDir%"
+            
+            REM Check for the folder after deletion
+            if exist "%tempDir%" (
+                echo Error: Hiddify configuration folder not deleted.
+            ) else (
+                echo Hiddify configuration folder successfully deleted.
+            )
         ) else (
-            echo Hiddify configuration folder successfully deleted.
+            echo Configuration folder saved. Run this command again if needed!
         )
     ) else (
-        echo Configuration folder saved. Run this command again if needed!
+        echo Hiddify configuration folder not found.
     )
-) else (
-    echo Hiddify configuration folder not found.
-)
 
-)
     pause
     goto hiddifyMenu
 )
