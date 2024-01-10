@@ -13,7 +13,7 @@
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-REM Update Code 1
+REM Update Code 12
 set "repoURL=https://raw.githubusercontent.com/yremac/vpnety/main/killSwitch.bat"
 set "scriptName=killSwitch.bat"
 set "tempFile=%temp%\updateScript.bat"
