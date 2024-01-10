@@ -8,7 +8,7 @@ set "tempFile=%temp%\updateScript.bat"
 
 echo Checking for updates...
 
-powershell -command "& { Invoke-WebRequest -Uri '%repoURL%' -OutFile '%tempFile%' }"
+curl -o "%tempFile%" "%repoURL%"
 
 fc /b %0 %tempFile% > nul
 
